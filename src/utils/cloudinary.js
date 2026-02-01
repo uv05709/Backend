@@ -1,18 +1,18 @@
-import {fs} from "fs"
+import fs from "fs";
 import { v2 as cloudinary } from 'cloudinary';
 
     cloudinary.config({ 
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
         api_key: process.env.CLOUDINARY_API_KEY, 
-        api_secret: process.env.hucz5iUzh6Q2aWNBiqYtSnhe60Q
+        api_secret: process.env.CLOUDINARY_API_SECRET
     });
     
    
-    const uploadCloudinary= async (locakFilePath)=>{
+    const uploadCloudinary= async (localFilePath)=>{
         try {
-            if (!locakFilePath) return null
+            if (!localFilePath) return null
             //upload the file on cloudinary
-            const response = await cloudinary.uploader.upload(locakFilePath,{
+            const response = await cloudinary.uploader.upload(localFilePath,{
                 resource_type: "auto"
             })
             
@@ -21,7 +21,7 @@ import { v2 as cloudinary } from 'cloudinary';
             return response
             
         } catch (error) {
-            fs.unlinkSync(locakFilePath)
+            fs.unlinkSync(localFilePath)
             //after failed upload it remove the temprorary file
             return null;
         }

@@ -2,7 +2,7 @@ import { asynchandler } from "../utils/asynchandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadCloudinary } from "../utils/cloudinary.js";
-import { ApiResponse } from "../utils/ApiResponse.js"; 
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const registerUser = asynchandler(async (req, res) => {
   //get use details from frontend
@@ -14,7 +14,7 @@ const registerUser = asynchandler(async (req, res) => {
   //remove password and refresh token feild from response
   //check for user creation
   //return res
-  const { fullName, username, password, email } = req.body;
+  const { fullname, username, password, email } = req.body;
   console.log("email: ", email);
 
   /*if (fullName === "") {
@@ -32,18 +32,19 @@ const registerUser = asynchandler(async (req, res) => {
   if (existedUser) {
     throw new ApiError(409, "username or email  is already exist");
   }
+const avtarLocalPath = req.files?.avtar?.[0]?.path;
+const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
 
-  const avtarLocalPath = req.files?.avtar[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
-  if (!avtarLocalPath) {
+if (!avtarLocalPath) {
     throw new ApiError(400, "avtar is required");
-  }
+}
 
-  const avtar = await uploadCloudinary(avtarLocalPath);
-  const coverImage = await uploadCloudinary(coverImageLocalPath);
-  if (!avtar) {
-    throw new ApiError(400, "avtar is required");
-  }
+const avtar = await uploadCloudinary(avtarLocalPath);
+const coverImage = coverImageLocalPath ? await uploadCloudinary(coverImageLocalPath) : null;
+
+if (!avtar) {
+    throw new ApiError(400, "Failed to upload avtar");
+}
   const user = await User.create({
     fullname,
     avtar: avtar.url,
@@ -54,12 +55,12 @@ const registerUser = asynchandler(async (req, res) => {
   });
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
-  )
-  if (createdUser) {
-    throw new ApiError(500 , "Something went wrong")
+  );
+  if (!createdUser) {
+    throw new ApiError(500, "Something went wrong");
   }
-  return res.status(201).json(
-    new ApiResponse (200 , createdUser ,"User registered Successfully")
-  )
+  return res
+    .status(201)
+    .json(new ApiResponse(200, createdUser, "User registered Successfully"));
 });
 export { registerUser };
