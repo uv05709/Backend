@@ -15,6 +15,7 @@ import { v2 as cloudinary } from 'cloudinary';
             const response = await cloudinary.uploader.upload(locakFilePath,{
                 resource_type: "auto"
             })
+            
             //uploaded successfully
             console.log("File Uploaded Successfully", response.url);
             return response
