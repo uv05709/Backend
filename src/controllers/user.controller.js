@@ -15,7 +15,7 @@ const registerUser = asynchandler(async (req, res) => {
   //check for user creation
   //return res
   const { fullname, username, password, email } = req.body;
-  console.log("email: ", email);
+  //console.log("email: ", email);
 
   /*if (fullName === "") {
     throw new  ApiError(400, "fullname is re")
@@ -32,22 +32,33 @@ const registerUser = asynchandler(async (req, res) => {
   if (existedUser) {
     throw new ApiError(409, "username or email  is already exist");
   }
-const avtarLocalPath = req.files?.avtar?.[0]?.path;
-const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
+  const avtarLocalPath = req.files?.avtar?.[0]?.path;
+  //const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
 
-if (!avtarLocalPath) {
+  let coverImageLocalPath;
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
+
+  if (!avtarLocalPath) {
     throw new ApiError(400, "avtar is required");
-}
+  }
 
-const avtar = await uploadCloudinary(avtarLocalPath);
-const coverImage = coverImageLocalPath ? await uploadCloudinary(coverImageLocalPath) : null;
+  const avtar = await uploadCloudinary(avtarLocalPath);
+  const coverImage = coverImageLocalPath
+    ? await uploadCloudinary(coverImageLocalPath)
+    : null;
 
-if (!avtar) {
+  if (!avtar) {
     throw new ApiError(400, "Failed to upload avtar");
-}
+  }
   const user = await User.create({
     fullname,
-    avtar: avtar.url,
+    avtar: avtar?.url || " ",
     coverImage: coverImage?.url || "",
     email,
     password,
